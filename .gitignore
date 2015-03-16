@@ -1,0 +1,5 @@
+.dub
+docs.json
+*.o
+*.obj
+.*.s??
