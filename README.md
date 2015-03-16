@@ -8,5 +8,4 @@ Various ollection implementations, made mainly for use in personal game developm
 
 ecs.d
 ---------------
-
 Base for entity component system, based on structs where each component is stored in a contiguous array and inter-component dependencies are meant to be handled by giving components pointers to eachother at instantiation time.
