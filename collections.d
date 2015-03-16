@@ -9,5 +9,13 @@ struct StaticArray(T, uint size) {
 		array[elements++] = element;
 	}
 
+	T opIndex(size_t i) {
+		return array[i];
+	}
+
+	T opIndexAssign(T value, size_t i) {
+		return array[i] = value;
+	}
+
 
 }
