@@ -2,6 +2,10 @@ dlang-libs
 ===============
 Collection of personal modules for dlang separated out into a separate project because several projects depend on them.
 
+collections.d
+---------------
+Various ollection implementations, made mainly for use in personal game development projects.
+
 ecs.d
 ---------------
 
