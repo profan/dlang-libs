@@ -13,3 +13,7 @@ Base for entity component system, based on structs where each component is store
 memory.d
 ---------------
 Some allocator related things, beginnings of smart pointers, explicit allocation and some such.
+
+util.d
+---------------
+Collection of utility functions, useful in random places, no clear place of belonging.
