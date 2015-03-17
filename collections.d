@@ -23,9 +23,9 @@ struct StaticArray(T, uint size) {
 
 unittest {
 
-		const int size = 10;
-		auto arr = StaticArray!(int, size)();
-		arr[size-1] = 100;
-		assert(arr[size-1] == 100, format("expected arr[%d] to be %d, was %d", size-1, 100, arr[size-1]));
+	const int size = 10;
+	auto arr = StaticArray!(int, size)();
+	arr[size-1] = 100;
+	assert(arr[size-1] == 100, format("expected arr[%d] to be %d, was %d", size-1, 100, arr[size-1]));
 
 }
