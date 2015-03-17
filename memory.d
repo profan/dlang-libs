@@ -48,12 +48,33 @@ struct StructTest {
 //smart pointer with polymorphism, and possibly the ability to select a memory allocator.
 struct SmartPtr(T) {
 
+	alias RefCount = uint*;
+
 	this(T objectref) {
 		this.object = objectref;
+		this.refs = cast(uint*)malloc(uint.sizeof);
+		*this.refs = 1;
+	}
+
+	this(this) {
+		refs = refs;
+		++(*refs);
+	}
+
+	~this() {
+		*refs -= 1;
+		if (*refs == 0) {
+			destroy(object);
+			GC.removeRange(cast(void*)object);
+			free(cast(void*)object);
+			free(refs);
+			mixin("printf(\"" ~ typeof(object).stringof ~ " Memory deallocated. \n\");");
+		}
 	}
 
 	T object;
 	alias object this;
+	RefCount refs;
 
 }
 
