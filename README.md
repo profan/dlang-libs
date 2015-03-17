@@ -4,7 +4,7 @@ Collection of personal modules for dlang separated out into a separate project b
 
 collections.d
 ---------------
-Various ollection implementations, made mainly for use in personal game development projects.
+Various collection implementations, made mainly for use in personal game development projects.
 
 ecs.d
 ---------------
