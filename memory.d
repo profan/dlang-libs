@@ -31,6 +31,11 @@ class ClassTest {
 	this(int v1, int v2) {
 		this.var1 = v1;
 		this.var2 = v2;
+		printf("ClassTest created. \n");
+	}
+
+	~this() {
+		printf("ClassTest destroyed. \n");
 	}
 
 	int var1;
@@ -39,6 +44,10 @@ class ClassTest {
 }
 
 struct StructTest {
+
+	~this() {
+		printf("StructTest destroyed. \n");
+	}
 
 	int var1 = 0;
 	int var2 = 0;
@@ -62,14 +71,23 @@ struct SmartPtr(T) {
 	}
 
 	~this() {
+
 		*refs -= 1;
 		if (*refs == 0) {
-			destroy(object);
+
+			static if (is(T == class)) {
+				destroy(object);
+			} else {
+				destroy(*object);
+			}
+
 			GC.removeRange(cast(void*)object);
 			free(cast(void*)object);
 			free(refs);
-			mixin("printf(\"" ~ typeof(object).stringof ~ " Memory deallocated. \n\");");
+			mixin("printf(\"SmartPtr: " ~ typeof(object).stringof ~ " Memory deallocated. \n\");");
+
 		}
+
 	}
 
 	T object;
