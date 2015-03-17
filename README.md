@@ -9,3 +9,7 @@ Various collection implementations, made mainly for use in personal game develop
 ecs.d
 ---------------
 Base for entity component system, based on structs where each component is stored in a contiguous array and inter-component dependencies are meant to be handled by giving components pointers to eachother at instantiation time.
+
+memory.d
+---------------
+Some allocator related things, beginnings of smart pointers, explicit allocation and some such.
