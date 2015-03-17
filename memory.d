@@ -75,6 +75,8 @@ struct SmartPtr(T) {
 		*refs -= 1;
 		if (*refs == 0) {
 
+			import std.string : format;
+
 			static if (is(T == class)) {
 				destroy(object);
 			} else {
@@ -84,7 +86,7 @@ struct SmartPtr(T) {
 			GC.removeRange(cast(void*)object);
 			free(cast(void*)object);
 			free(refs);
-			mixin("printf(\"SmartPtr: " ~ typeof(object).stringof ~ " Memory deallocated. \n\");");
+			mixin(format("printf(\"SmartPtr: %s memory deallocated. \n\");", typeof(object).stringof));
 
 		}
 
