@@ -169,7 +169,7 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 		enum is_dependency = is(typeof(attr) == typeof(dependency));
 	}
 
-	/*template has_attribute(list ...) {	
+	static template has_attribute(list ...) {	
 
 		static if (list.length > 0 && is_dependency!(list[0])) {
 			
@@ -177,7 +177,7 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 
 		} else static if (list.length > 0) {
 			
-			enum has_attribute = has_attribute(list[1 .. $]);
+			enum has_attribute = has_attribute!(list[1 .. $]);
 
 		} else {
 		
@@ -187,7 +187,7 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 
 	}
 
-	template link_dependencies(T, alias comp, alias entsym, list...) {
+	static template link_dependencies(T, alias comp, alias entsym, list...) {
 
 		static if (list.length > 0 && has_attribute!(__traits(getAttributes, __traits(getMember, T, list[0])))) {
 
@@ -212,9 +212,9 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 
 		enum fetch_dependencies = link_dependencies!(T, comp, entsym, __traits(allMembers, T));
 
-	}*/
+	}
 
-	template link_dependencies(T, alias comp, alias entsym) {
+	/*template link_dependencies(T, alias comp, alias entsym) {
 
 		string do_stuff() {
 			string str = "";
@@ -241,7 +241,7 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 
 		enum link_dependencies = do_stuff();
 
-	}
+	}*/
 
 	T construct_component(EntityID entity) {
 
@@ -249,9 +249,9 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 		import std.traits : moduleName;
 
 		T c = T();
-		mixin link_dependencies!(T, c, entity);
+		mixin fetch_dependencies!(T, c, entity);
 		mixin(format("import %s;", moduleName!T));
-		mixin(link_dependencies);
+		mixin(fetch_dependencies);
 		return c;
 	
 	}
