@@ -214,35 +214,6 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 
 	}
 
-	/*template link_dependencies(T, alias comp, alias entsym) {
-
-		string do_stuff() {
-			string str = "";
-			foreach (member; __traits(allMembers, T)) {
-
-				auto props = __traits(getAttributes, __traits(getMember, T, member));
-
-				foreach (p; props) {
-					static if (is_dependency!p) {
-						pragma(msg,
-							__traits(identifier, comp) ~ "." ~ member ~ " = em.get_component!"
-							~ __traits(identifier, PointerTarget!(typeof(__traits(getMember, T, member))))
-							~ "("~__traits(identifier, entsym)~");");
-						str ~= __traits(identifier, comp) ~ "." ~ member ~ " = em.get_component!"
-							~ __traits(identifier, PointerTarget!(typeof(__traits(getMember, T, member))))
-							~ "("~__traits(identifier, entsym)~");";
-					}
-				}
-
-			}
-
-			return str;
-		}
-
-		enum link_dependencies = do_stuff();
-
-	}*/
-
 	T construct_component(EntityID entity) {
 
 		import std.string : format;
