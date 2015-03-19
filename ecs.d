@@ -244,9 +244,14 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 	}
 
 	T construct_component(EntityID entity) {
-	
+
+		import std.string : format;
+		import std.traits : moduleName;
+
 		T c = T();
-		//mixin(fetch_dependencies!(T, c, entity));
+		mixin link_dependencies!(T, c, entity);
+		mixin(format("import %s;", moduleName!T));
+		mixin(link_dependencies);
 		return c;
 	
 	}
