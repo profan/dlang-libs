@@ -95,7 +95,7 @@ interface IComponentManager {
 	void set_manager(EntityManager em);
 
 	@property int priority() const;
-	@property string name() const;
+	@property ComponentType name() const;
 	bool register(EntityID entity);
 	bool register(EntityID entity, void[] component);
 	void unregister(EntityID entity);
