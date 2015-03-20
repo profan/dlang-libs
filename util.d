@@ -9,7 +9,7 @@ unittest {
 	import std.string : format;
 	import std.stdio: writefln;
 
-	float values[5] = [1, 2, 3, 4, 5];
+	float[5] values = [1, 2, 3, 4, 5];
 
 	float min = 0, max = 1;
 	float val_max = 5;
