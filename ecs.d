@@ -271,14 +271,14 @@ unittest {
 	auto em = new EntityManager();
 	em.add_system(new SomeManager());
 	em.add_system(new OtherManager());
-	
+
 	//create entity and component, add to system
 	auto entity = em.create_entity();
 	em.register_component!SomeComponent(entity);
 	em.register_component!OtherComponent(entity);
 	assert(em.get_component!SomeComponent(entity) != null);
 	em.get_component!SomeComponent(entity).value = 0;
-	
+
 	em.update_systems(); //one iteration, value should now be 2
 	auto val = em.get_component!SomeComponent(entity).value;
 	assert(val == 2, "expected val of SomeComponent to be 2, order of updating is incorrect");
