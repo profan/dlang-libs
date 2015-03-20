@@ -234,3 +234,53 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 	abstract void update();
 
 } //ComponentManager
+
+version(unittest) {
+
+	struct SomeComponent {
+		int value;
+	}
+
+	class SomeManager : ComponentManager!(SomeComponent, 1) {
+		override void update() {
+			foreach (ref comp; components) {
+				comp.value += 1;
+			}
+		}
+	}
+
+	struct OtherComponent {
+		@dependency SomeComponent* sc;
+	}
+
+	class OtherManager : ComponentManager!(OtherComponent, 2) {
+		override void update() {
+			foreach (ref comp; components) {
+				if (comp.sc.value == 1) { 
+					comp.sc.value += 1;
+				}
+			}
+		}
+	}
+
+}
+
+unittest {
+	
+	//create manager, system
+	auto em = new EntityManager();
+	em.add_system(new SomeManager());
+	em.add_system(new OtherManager());
+	
+	//create entity and component, add to system
+	auto entity = em.create_entity();
+	em.register_component!SomeComponent(entity);
+	em.register_component!OtherComponent(entity);
+	assert(em.get_component!SomeComponent(entity) != null);
+	em.get_component!SomeComponent(entity).value = 0;
+	
+	em.update_systems(); //one iteration, value should now be 2
+	auto val = em.get_component!SomeComponent(entity).value;
+	assert(val == 2, "expected val of SomeComponent to be 2, order of updating is incorrect");
+
+}
