@@ -49,9 +49,13 @@ class EntityManager {
 	void unregister_component(C)(EntityID entity, ComponentType system = typeid(C).stringof) {
 
 		if (system == "*") {
+			
 			foreach(sys; cms) {
 				sys.unregister(entity);
 			}
+
+			return;
+
 		}
 
 		get_manager!void(system).unregister(entity);
@@ -265,22 +269,51 @@ version(unittest) {
 
 }
 
-unittest {
-	
-	//create manager, system
-	auto em = new EntityManager();
-	em.add_system(new SomeManager());
-	em.add_system(new OtherManager());
+version(unittest) {
 
-	//create entity and component, add to system
-	auto entity = em.create_entity();
-	em.register_component!SomeComponent(entity);
-	em.register_component!OtherComponent(entity);
+	void create_prerequisites(ref EntityManager em, ref EntityID entity) {
+
+		//create manager, system
+		em = new EntityManager();
+		em.add_system(new SomeManager());
+		em.add_system(new OtherManager());
+
+		//create entity and component, add to system
+		entity = em.create_entity();
+		em.register_component!SomeComponent(entity);
+		em.register_component!OtherComponent(entity);
+
+	}
+
+
+}
+
+mixin template PreReq() {
+
+	EntityID entity;
+	EntityManager em;
+
+}
+
+unittest {
+
+	mixin PreReq;
+	create_prerequisites(em, entity);
 	assert(em.get_component!SomeComponent(entity) != null);
 	em.get_component!SomeComponent(entity).value = 0;
 
 	em.update_systems(); //one iteration, value should now be 2
 	auto val = em.get_component!SomeComponent(entity).value;
 	assert(val == 2, "expected val of SomeComponent to be 2, order of updating is incorrect");
+
+}
+
+unittest {
+
+	import std.exception : assertNotThrown;
+
+	mixin PreReq;
+	create_prerequisites(em, entity);
+	assertNotThrown!Exception(em.unregister_component!void(entity, "*"), "unregister_component should not throw an exception, likely out of bounds.");
 
 }
