@@ -285,13 +285,12 @@ version(unittest) {
 
 	}
 
+	mixin template PreReq() {
 
-}
+		EntityID entity;
+		EntityManager em;
 
-mixin template PreReq() {
-
-	EntityID entity;
-	EntityManager em;
+	}
 
 }
 
