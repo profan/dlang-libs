@@ -267,10 +267,6 @@ version(unittest) {
 
 		abstract void update();
 
-		void update(Args...)(Args args) {
-			update();
-		}
-
 	}
 
 	struct SomeComponent {
