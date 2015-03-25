@@ -3,18 +3,25 @@ module profan.ecs;
 import std.stdio;
 import std.algorithm;
 import std.traits : PointerTarget;
+import std.typecons : Tuple;
+import std.conv : to;
 
 alias EntityID = ulong;
 alias ComponentType = string;
+alias SystemType = int;
 
 enum dependency = 0;
+
+mixin template SystemContainer(Args) {
+	private ComponentSystem!Args[] name;
+}
 
 class EntityManager {
 
 	private EntityID current_id = 0;
 	private IComponentManager[] cms;
 
-	void add_system(IComponentManager cm) {
+	void add_system(S)(IComponentManager cm) {
 
 		cm.set_manager(this);
 		cms ~= cm;
@@ -82,10 +89,11 @@ class EntityManager {
 
 	}
 
-	void update_systems() {
+	void tick(T, Args...)(Args args) {
 
 		foreach (sys; cms) {
-			sys.update();
+			T s = cast(T)sys;
+			s.update(args);
 		}
 
 	}
@@ -106,11 +114,27 @@ interface IComponentManager {
 	void* component(EntityID entity);
 	void* all_components();
 
-	void update();
-
 } //IComponentManager
 
-class ComponentManager(T, int P = int.max) : IComponentManager {
+interface ComponentSystem(Args...) : IComponentManager {
+
+	bool opEquals(ref const IComponentManager other);
+	int opCmp(ref const IComponentManager other);
+	void set_manager(EntityManager em);
+
+	@property int priority() const;
+	@property ComponentType name() const;
+	bool register(EntityID entity);
+	bool register(EntityID entity, void[] component);
+	void unregister(EntityID entity);
+	void* component(EntityID entity);
+	void* all_components();
+
+	void update(Args...)(Args args);
+
+}
+
+class ComponentManager(System, T, int P = int.max) : System {
 
 	protected EntityManager em;
 	static immutable int prio = P;
@@ -235,17 +259,25 @@ class ComponentManager(T, int P = int.max) : IComponentManager {
 		
 	}
 
-	abstract void update();
-
 } //ComponentManager
 
 version(unittest) {
+
+	abstract class UpdateSystem : ComponentSystem!() {
+
+		abstract void update();
+
+		void update(Args...)(Args args) {
+			update();
+		}
+
+	}
 
 	struct SomeComponent {
 		int value;
 	}
 
-	class SomeManager : ComponentManager!(SomeComponent, 1) {
+	class SomeManager : ComponentManager!(UpdateSystem, SomeComponent, 1) {
 		override void update() {
 			foreach (ref comp; components) {
 				comp.value += 1;
@@ -257,8 +289,8 @@ version(unittest) {
 		@dependency SomeComponent* sc;
 	}
 
-	class OtherManager : ComponentManager!(OtherComponent, 2) {
-		override void update() {
+	class OtherManager : ComponentManager!(UpdateSystem, OtherComponent, 2) {
+		override void update(){
 			foreach (ref comp; components) {
 				if (comp.sc.value == 1) { 
 					comp.sc.value += 1;
@@ -275,8 +307,8 @@ version(unittest) {
 
 		//create manager, system
 		em = new EntityManager();
-		em.add_system(new SomeManager());
-		em.add_system(new OtherManager());
+		em.add_system!SomeManager(new SomeManager());
+		em.add_system!OtherManager(new OtherManager());
 
 		//create entity and component, add to system
 		entity = em.create_entity();
@@ -301,9 +333,9 @@ unittest {
 	assert(em.get_component!SomeComponent(entity) != null);
 	em.get_component!SomeComponent(entity).value = 0;
 
-	em.update_systems(); //one iteration, value should now be 2
+	em.tick!(UpdateSystem)(); //one iteration, value should now be 2
 	auto val = em.get_component!SomeComponent(entity).value;
-	assert(val == 2, "expected val of SomeComponent to be 2, order of updating is incorrect");
+	assert(val == 2, "expected val of SomeComponent to be 2, order of updating is incorrect, was " ~ to!string(val));
 
 }
 
