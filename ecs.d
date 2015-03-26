@@ -14,8 +14,6 @@ enum dependency = 0;
 
 class EntityManager {
 
-	import std.string : format;
-	import std.traits : moduleName;
 	import profan.collections : StaticArray;
 
 	private EntityID current_id = 0;
@@ -24,10 +22,8 @@ class EntityManager {
 
 	void add_system(S)(S cm) {
 
-		mixin(format("import %s;", moduleName!S));
-
 		cm.set_manager(this);
-		uint id = identifier!(S);
+		uint id = S.identifier;
 		systems[id] ~= cm;
 		sort(systems[id]);
 		cms ~= cm;
@@ -118,9 +114,7 @@ class EntityManager {
 
 	void tick(T, Args...)(Args args) {
 
-		mixin(format("import %s;", moduleName!T));
-
-		foreach (sys; systems[identifier!(T)]) {
+		foreach (sys; systems[T.identifier]) {
 			T s = cast(T)sys; //this is slightly evil
 			s.update(args);
 		}
@@ -145,8 +139,9 @@ interface IComponentManager {
 
 } //IComponentManager
 
-interface ComponentSystem(Args...) : IComponentManager {
+interface ComponentSystem(uint Identifier, Args...) : IComponentManager {
 
+	enum identifier = Identifier;
 	void update(Args...)(Args args);
 
 } //ComponentSystem
@@ -291,16 +286,13 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 
 version(unittest) {
 
-	uint identifier(T:UpdateSystem)() { return 0; }
-	interface UpdateSystem : ComponentSystem!() {
+	interface UpdateSystem : ComponentSystem!(0) {
 
 		void update();
 
 	}
 
-
-	uint identifier(T:DrawSystem)() { return 1; }
-	interface DrawSystem : ComponentSystem!(int) {
+	interface DrawSystem : ComponentSystem!(1, int) {
 
 		void update(int value);
 
