@@ -124,22 +124,31 @@ interface ComponentSystem(Args...) : IComponentManager {
 
 abstract class ComponentManager(System, T, int P = int.max) : System {
 
-	protected EntityManager em;
-	static immutable int prio = P;
-	protected T[EntityID] components;
-	private static immutable ComponentType cname = typeid(T).stringof;
+	protected {
+		EntityManager em;
+		T[EntityID] components;
+	}
+
+	private static immutable {
+		int prio = P;
+		ComponentType cname = typeid(T).stringof;
+	}
 
 	@property int priority() const { return prio; }
 	@property ComponentType name() const { return cname; }
 
 	bool opEquals(ref const IComponentManager other) {
+
 		return name == other.name;
+
 	}
 	
 	int opCmp(ref const IComponentManager other) {
+
 		if (priority > other.priority) return 1;
 		if (priority == other.priority) return 0;
 		return -1;
+
 	}
 	
 	void set_manager(EntityManager em) {
@@ -182,7 +191,9 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 	}
 
 	static template is_dependency(alias attr) {
+
 		enum is_dependency = is(typeof(attr) == typeof(dependency));
+
 	}
 
 	static template has_attribute(list ...) {	
@@ -252,9 +263,7 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 version(unittest) {
 
 	interface UpdateSystem : ComponentSystem!() {
-
 		void update();
-
 	}
 
 	struct SomeComponent {
@@ -262,11 +271,13 @@ version(unittest) {
 	}
 
 	class SomeManager : ComponentManager!(UpdateSystem, SomeComponent, 1) {
+
 		void update() {
 			foreach (ref comp; components) {
 				comp.value += 1;
 			}
 		}
+
 	}
 
 	struct OtherComponent {
@@ -274,6 +285,7 @@ version(unittest) {
 	}
 
 	class OtherManager : ComponentManager!(UpdateSystem, OtherComponent, 2) {
+
 		void update(){
 			foreach (ref comp; components) {
 				if (comp.sc.value == 1) { 
