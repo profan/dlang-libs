@@ -7,6 +7,8 @@ struct StaticArray(T, uint size) {
 	uint elements = 0;
 	T[size] array;
 
+	alias array this;
+
 	void opOpAssign(string op: "~")(T element) {
 		array[elements++] = element;
 	}
