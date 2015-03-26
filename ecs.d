@@ -22,6 +22,10 @@ class EntityManager {
 
 	void add_system(S)(S cm) {
 
+		import std.string : format;
+		import std.traits : moduleName;
+		mixin(format("import %s;", moduleName!S));
+
 		cm.set_manager(this);
 		uint id = identifier!(S);
 		systems[id] ~= cm;
