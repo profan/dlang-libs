@@ -92,7 +92,7 @@ class EntityManager {
 	void tick(T, Args...)(Args args) {
 
 		foreach (sys; cms) {
-			T s = cast(T)sys;
+			T s = cast(T)sys; //this is slightly evil
 			s.update(args);
 		}
 
@@ -117,18 +117,6 @@ interface IComponentManager {
 } //IComponentManager
 
 interface ComponentSystem(Args...) : IComponentManager {
-
-	bool opEquals(ref const IComponentManager other);
-	int opCmp(ref const IComponentManager other);
-	void set_manager(EntityManager em);
-
-	@property int priority() const;
-	@property ComponentType name() const;
-	bool register(EntityID entity);
-	bool register(EntityID entity, void[] component);
-	void unregister(EntityID entity);
-	void* component(EntityID entity);
-	void* all_components();
 
 	void update(Args...)(Args args);
 
