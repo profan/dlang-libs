@@ -41,7 +41,7 @@ class EntityManager {
 
 	}
 
-	IComponentManager get_manager(C)(ComponentType system = typeid(C).stringof) {
+	IComponentManager get_manager(C = void)(ComponentType system = typeid(C).stringof) {
 
 		return find!("a.name == b")(cms, system)[0];
 
@@ -59,19 +59,36 @@ class EntityManager {
 
 	}
 
-	void unregister_component(C)(EntityID entity, ComponentType system = typeid(C).stringof) {
+	void unregister_component(S = void, C = void)(EntityID entity) {
 
-		if (system == "*") {
-			
+		static if (is(C == void)) {
+		
 			foreach(sys; cms) {
 				sys.unregister(entity);
 			}
 
-			return;
+		} else {
+
+			get_manager!(C).unregister(entity);
 
 		}
 
-		get_manager!void(system).unregister(entity);
+		static if (is(S == void)) {
+
+			foreach(arr; systems) {
+				foreach(sys; arr) {
+					sys.unregister(entity);
+				}
+			}
+
+		} else {
+			
+			foreach(sys; systems[identifier!(S)]) {
+				sys.unregister(entity);
+			}
+
+		}
+		
 
 	}
 
@@ -383,6 +400,6 @@ unittest {
 
 	mixin PreReq;
 	create_prerequisites(em, entity);
-	assertNotThrown!Exception(em.unregister_component!void(entity, "*"), "unregister_component should not throw an exception, likely out of bounds.");
+	assertNotThrown!Exception(em.unregister_component(entity), "unregister_component should not throw an exception, likely out of bounds.");
 
 }
