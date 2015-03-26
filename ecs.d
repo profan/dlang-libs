@@ -122,7 +122,7 @@ interface ComponentSystem(Args...) : IComponentManager {
 
 }
 
-class ComponentManager(System, T, int P = int.max) : System {
+abstract class ComponentManager(System, T, int P = int.max) : System {
 
 	protected EntityManager em;
 	static immutable int prio = P;
@@ -251,9 +251,9 @@ class ComponentManager(System, T, int P = int.max) : System {
 
 version(unittest) {
 
-	abstract class UpdateSystem : ComponentSystem!() {
+	interface UpdateSystem : ComponentSystem!() {
 
-		abstract void update();
+		void update();
 
 	}
 
@@ -262,7 +262,7 @@ version(unittest) {
 	}
 
 	class SomeManager : ComponentManager!(UpdateSystem, SomeComponent, 1) {
-		override void update() {
+		void update() {
 			foreach (ref comp; components) {
 				comp.value += 1;
 			}
@@ -274,7 +274,7 @@ version(unittest) {
 	}
 
 	class OtherManager : ComponentManager!(UpdateSystem, OtherComponent, 2) {
-		override void update(){
+		void update(){
 			foreach (ref comp; components) {
 				if (comp.sc.value == 1) { 
 					comp.sc.value += 1;
