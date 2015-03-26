@@ -18,12 +18,18 @@ mixin template SystemContainer(Args) {
 
 class EntityManager {
 
+	import profan.collections : StaticArray;
+
 	private EntityID current_id = 0;
 	private IComponentManager[] cms;
+	private StaticArray!(IComponentManager[], 10) systems;
 
 	void add_system(S)(IComponentManager cm) {
 
 		cm.set_manager(this);
+		uint id = identifier!(S);
+		systems[id] ~= cm;
+		sort(systems[id]);
 		cms ~= cm;
 		sort(cms);
 
@@ -91,7 +97,7 @@ class EntityManager {
 
 	void tick(T, Args...)(Args args) {
 
-		foreach (sys; cms) {
+		foreach (sys; systems[identifier!(T)]) {
 			T s = cast(T)sys; //this is slightly evil
 			s.update(args);
 		}
@@ -262,8 +268,19 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 
 version(unittest) {
 
+	uint identifier(T:UpdateSystem)() { return 0; }
 	interface UpdateSystem : ComponentSystem!() {
+
 		void update();
+
+	}
+
+
+	uint identifier(T:DrawSystem)() { return 1; }
+	interface DrawSystem : ComponentSystem!(int) {
+
+		void update(int value);
+
 	}
 
 	struct SomeComponent {
@@ -296,6 +313,21 @@ version(unittest) {
 
 	}
 
+	struct DrawComponent {
+		int value;
+	}
+
+	class DrawManager : ComponentManager!(DrawSystem, DrawComponent, 1) {
+
+		void update(int value){
+			foreach (ref comp; components) {
+				comp.value = value;
+			}
+		}
+
+	}
+
+
 }
 
 version(unittest) {
@@ -306,11 +338,13 @@ version(unittest) {
 		em = new EntityManager();
 		em.add_system!SomeManager(new SomeManager());
 		em.add_system!OtherManager(new OtherManager());
+		em.add_system!DrawManager(new DrawManager());
 
 		//create entity and component, add to system
 		entity = em.create_entity();
 		em.register_component!SomeComponent(entity);
 		em.register_component!OtherComponent(entity);
+		em.register_component!DrawComponent(entity);
 
 	}
 
@@ -330,9 +364,16 @@ unittest {
 	assert(em.get_component!SomeComponent(entity) != null);
 	em.get_component!SomeComponent(entity).value = 0;
 
-	em.tick!(UpdateSystem)(); //one iteration, value should now be 2
-	auto val = em.get_component!SomeComponent(entity).value;
-	assert(val == 2, "expected val of SomeComponent to be 2, order of updating is incorrect, was " ~ to!string(val));
+	{
+		em.tick!(UpdateSystem)(); //one iteration, value should now be 2
+		auto val = em.get_component!SomeComponent(entity).value;
+		assert(val == 2, "expected val of SomeComponent to be 2, order of updating is incorrect, was " ~ to!string(val));
+	}
+	{
+		em.tick!(DrawSystem)(10); //one iteration, value should now be 10
+		auto val = em.get_component!DrawComponent(entity).value;
+		assert(val == 10);
+	}
 
 }
 
