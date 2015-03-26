@@ -20,7 +20,7 @@ class EntityManager {
 	private IComponentManager[] cms;
 	private StaticArray!(IComponentManager[], 10) systems;
 
-	void add_system(S)(IComponentManager cm) {
+	void add_system(S)(S cm) {
 
 		cm.set_manager(this);
 		uint id = identifier!(S);
@@ -349,9 +349,9 @@ version(unittest) {
 
 		//create manager, system
 		em = new EntityManager();
-		em.add_system!SomeManager(new SomeManager());
-		em.add_system!OtherManager(new OtherManager());
-		em.add_system!DrawManager(new DrawManager());
+		em.add_system(new SomeManager());
+		em.add_system(new OtherManager());
+		em.add_system(new DrawManager());
 
 		//create entity and component, add to system
 		entity = em.create_entity();
