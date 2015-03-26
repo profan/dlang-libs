@@ -12,10 +12,6 @@ alias SystemType = int;
 
 enum dependency = 0;
 
-mixin template SystemContainer(Args) {
-	private ComponentSystem!Args[] name;
-}
-
 class EntityManager {
 
 	import profan.collections : StaticArray;
@@ -143,7 +139,7 @@ interface ComponentSystem(Args...) : IComponentManager {
 
 	void update(Args...)(Args args);
 
-}
+} //ComponentSystem
 
 abstract class ComponentManager(System, T, int P = int.max) : System {
 
