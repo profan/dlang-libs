@@ -61,6 +61,12 @@ class EntityManager {
 
 	void unregister_component(S = void, C = void)(EntityID entity) {
 
+		static if (!is(S == void)) {
+			import std.string : format;
+			import std.traits : moduleName;
+			mixin(format("import %s;", moduleName!S));
+		}
+
 		static if (is(C == void)) {
 		
 			foreach(sys; cms) {
@@ -113,6 +119,10 @@ class EntityManager {
 	}
 
 	void tick(T, Args...)(Args args) {
+
+		import std.string : format;
+		import std.traits : moduleName;
+		mixin(format("import %s;", moduleName!T));
 
 		foreach (sys; systems[identifier!(T)]) {
 			T s = cast(T)sys; //this is slightly evil
