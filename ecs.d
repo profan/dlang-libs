@@ -14,6 +14,8 @@ enum dependency = 0;
 
 class EntityManager {
 
+	import std.string : format;
+	import std.traits : moduleName;
 	import profan.collections : StaticArray;
 
 	private EntityID current_id = 0;
@@ -22,8 +24,6 @@ class EntityManager {
 
 	void add_system(S)(S cm) {
 
-		import std.string : format;
-		import std.traits : moduleName;
 		mixin(format("import %s;", moduleName!S));
 
 		cm.set_manager(this);
@@ -62,8 +62,6 @@ class EntityManager {
 	void unregister_component(S = void, C = void)(EntityID entity) {
 
 		static if (!is(S == void)) {
-			import std.string : format;
-			import std.traits : moduleName;
 			mixin(format("import %s;", moduleName!S));
 		}
 
@@ -120,8 +118,6 @@ class EntityManager {
 
 	void tick(T, Args...)(Args args) {
 
-		import std.string : format;
-		import std.traits : moduleName;
 		mixin(format("import %s;", moduleName!T));
 
 		foreach (sys; systems[identifier!(T)]) {
