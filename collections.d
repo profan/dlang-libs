@@ -9,8 +9,14 @@ struct StaticArray(T, uint size) {
 
 	alias array this;
 
-	void opOpAssign(string op: "~")(T element) {
-		array[elements++] = element;
+	void opOpAssign(string op: "~")(T item) {
+		array[elements++] = item;
+	}
+
+	void opOpAssign(string op: "~")(T[] items) {
+		foreach(e; items) {
+			array[elements++] = e;
+		}
 	}
 
 	T opIndex(size_t i) {
@@ -49,11 +55,17 @@ struct DHeap(T) {
 
 unittest {
 
+	import std.conv : to;
+
 	//StaticArray
 	const int size = 10;
 	auto arr = StaticArray!(int, size)();
 	arr[size-1] = 100;
 	assert(arr[size-1] == 100, format("expected arr[%d] to be %d, was %d", size-1, 100, arr[size-1]));
+
+	int[5] int_a = [1, 2, 3, 4, 5];
+	arr ~= int_a;
+	assert(arr.elements == 5, "expected num of elements to be 5, was: " ~ to!string(arr.elements));
 
 }
 
