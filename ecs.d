@@ -153,9 +153,9 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 		T[EntityID] components;
 	}
 
-	private static immutable {
-		int prio = P;
-		ComponentType cname = typeid(T).stringof;
+	private {
+		enum prio = P;
+		enum cname = typeid(T).stringof;
 	}
 
 	@property int priority() const { return prio; }
