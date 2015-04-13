@@ -14,7 +14,7 @@ alias EntityID = EntityUID;
 alias ComponentName = string;
 alias SystemType = int;
 
-enum dependency = "dependency";
+struct dependency {};
 
 struct EntityUID {
 
@@ -255,7 +255,7 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 
 	static template is_dependency(alias attr) {
 
-		enum is_dependency = is(typeof(attr) == typeof(dependency));
+		enum is_dependency = is(typeof(attr) == dependency);
 
 	}
 
