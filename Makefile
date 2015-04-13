@@ -1,2 +1,3 @@
 test:
-	$(DC) -main -unittest *.d
+	$(DC) -main -unittest *.d -o test
+	./test
