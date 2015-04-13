@@ -1,3 +1,3 @@
 test:
-	$(DC) -main -unittest *.d -of test
+	$(DC) -main -unittest *.d -of=test
 	./test
