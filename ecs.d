@@ -1,7 +1,6 @@
 module profan.ecs;
 
-import std.stdio;
-import std.algorithm;
+import std.algorithm : sort;
 import std.traits : PointerTarget;
 import std.typecons : Tuple;
 import std.conv : to;
@@ -75,7 +74,11 @@ class EntityManager {
 
 	IComponentManager get_manager(C = void)(ComponentName system = typeid(C).stringof) {
 
-		return find!("a.name == b")(cms, system)[0];
+		foreach (id, man; cms) {
+			if (man.name == system) return man;
+		}
+
+		return null;
 
 	}
 
@@ -94,7 +97,7 @@ class EntityManager {
 	void unregister_component(S = void, C = void)(EntityID entity) {
 
 		static if (!is(S == void)) {
-			mixin(format("import %s;", moduleName!S));
+			mixin("import " ~ moduleName!S ~ ";");
 		}
 
 		static if (is(C == void)) {
@@ -128,23 +131,30 @@ class EntityManager {
 
 	}
 
+	import std.stdio : writefln;
 	bool register_component(C)(EntityID entity) {
 
-		try {
-			return get_manager!C().register(entity);
-		} catch {
-			return false;
+		IComponentManager em = get_manager!C();
+
+		if (em !is null) {
+			return em.register(entity);
+		} else {
+			writefln("failed to register component!");
 		}
+
+		return false;
 
 	}
 	
 	bool register_component(C)(EntityID entity, C component) {
 
-		try {
-			return get_manager!C().register(entity, (cast(void[C.sizeof])component));
-		} catch {
-			return false;
+		IComponentManager em = get_manager!C();
+
+		if (em !is null) {
+			return em.register(entity, (cast(void[C.sizeof])component));
 		}
+
+		return false;
 
 	}
 
@@ -311,7 +321,7 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 
 		T c = T(); //this is positively horrifying, do something about this later.
 		mixin fetch_dependencies!(T, c, entity);
-		mixin(format("import %s;", moduleName!T));
+		mixin("import " ~ moduleName!T ~ ";");
 		mixin(fetch_dependencies);
 		return c;
 	
