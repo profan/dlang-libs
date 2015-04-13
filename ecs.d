@@ -307,7 +307,7 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 		import std.string : format;
 		import std.traits : moduleName;
 
-		T c = T();
+		T c = T(); //this is positively horrifying, do something about this later.
 		mixin fetch_dependencies!(T, c, entity);
 		mixin(format("import %s;", moduleName!T));
 		mixin(fetch_dependencies);
