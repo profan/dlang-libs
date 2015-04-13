@@ -1,6 +1,5 @@
 language: d
 d:
  - dmd
- - gdc
- - ldc
+ - ldmd2
 script: make test
