@@ -6,13 +6,15 @@ import std.traits : PointerTarget;
 import std.typecons : Tuple;
 import std.conv : to;
 
-import blindfire.defs : ClientID, LocalEntityID;
+//networked data
+alias ClientID = ubyte;
+alias LocalEntityID = ulong;
 
 alias EntityID = EntityUID;
 alias ComponentName = string;
 alias SystemType = int;
 
-enum dependency = 0;
+enum dependency = "dependency";
 
 struct EntityUID {
 

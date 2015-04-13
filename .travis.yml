@@ -3,4 +3,4 @@ d:
  - dmd
  - gdc
  - ldc
-script: make test ${DC}
+script: make test

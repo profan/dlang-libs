@@ -1,2 +1,2 @@
 test:
-	rdmd --main --compiler=$(DC) -unittest *.d
+	$(DC) -main -unittest *.d
