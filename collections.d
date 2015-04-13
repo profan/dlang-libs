@@ -13,7 +13,7 @@ struct StaticArray(T, uint size) {
 		array[elements++] = item;
 	}
 
-	void opOpAssign(string op: "~")(T[] items) {
+	void opOpAssign(string op: "~")(in T[] items) {
 		foreach(e; items) {
 			array[elements++] = e;
 		}
@@ -23,8 +23,17 @@ struct StaticArray(T, uint size) {
 		return array[i];
 	}
 
+	T[] opSlice(size_t h, size_t t) {
+		return array[h..t];
+	}
+
 	T opIndexAssign(T value, size_t i) {
 		return array[i] = value;
+	}
+
+	void opAssign(StaticArray!(T, size) other) {
+		this.array = other.array;
+		this.elements = other.elements;
 	}
 
 }

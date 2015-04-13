@@ -6,19 +6,47 @@ import std.traits : PointerTarget;
 import std.typecons : Tuple;
 import std.conv : to;
 
-alias EntityID = ulong;
-alias ComponentType = string;
+import blindfire.defs : ClientID, LocalEntityID;
+
+alias EntityID = EntityUID;
+alias ComponentName = string;
 alias SystemType = int;
 
 enum dependency = 0;
+
+struct EntityUID {
+
+	this(ClientID owner, LocalEntityID id) {
+		this.owner = owner;
+		this.id = id;
+	}
+
+	ClientID owner;
+	LocalEntityID id;
+
+	size_t toHash() const nothrow @safe {
+		return owner + cast(size_t)id;
+	}
+	
+	bool opEquals(ref const EntityUID other) const {
+		return (owner == other.owner && id == other.id);
+	}
+
+}
 
 class EntityManager {
 
 	import profan.collections : StaticArray;
 
-	private EntityID current_id = 0;
+	ClientID client_uuid;
+
+	private LocalEntityID current_id = 0;
 	private IComponentManager[] cms;
 	private StaticArray!(IComponentManager[], 10) systems;
+
+	this () {
+		this.client_uuid = 255;
+	}
 
 	void add_system(S)(S cm) {
 
@@ -31,13 +59,19 @@ class EntityManager {
 
 	}
 
-	EntityID create_entity() {
+	EntityID create_entity(EntityID entity) {
 
-		return current_id++;
+		return entity;
 
 	}
 
-	IComponentManager get_manager(C = void)(ComponentType system = typeid(C).stringof) {
+	EntityID create_entity() {
+
+		return EntityID(client_uuid, current_id++);
+
+	}
+
+	IComponentManager get_manager(C = void)(ComponentName system = typeid(C).stringof) {
 
 		return find!("a.name == b")(cms, system)[0];
 
@@ -130,7 +164,7 @@ interface IComponentManager {
 	void set_manager(EntityManager em);
 
 	@property int priority() const;
-	@property ComponentType name() const;
+	@property ComponentName name() const;
 	bool register(EntityID entity);
 	bool register(EntityID entity, void[] component);
 	void unregister(EntityID entity);
@@ -159,7 +193,7 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 	}
 
 	@property int priority() const { return prio; }
-	@property ComponentType name() const { return cname; }
+	@property ComponentName name() const { return cname; }
 
 	bool opEquals(ref const IComponentManager other) {
 
@@ -191,7 +225,10 @@ abstract class ComponentManager(System, T, int P = int.max) : System {
 
 	bool register(EntityID entity, void[] component) {
 
-		components[entity] = *(cast(T*)component);
+		import std.algorithm : move;
+
+		components[entity] = T();
+		move(*(cast(T*)component), components[entity]);
 		return true;
 
 	}
@@ -318,7 +355,7 @@ version(unittest) {
 
 	class OtherManager : ComponentManager!(UpdateSystem, OtherComponent, 2) {
 
-		void update(){
+		void update() {
 			foreach (ref comp; components) {
 				if (comp.sc.value == 1) { 
 					comp.sc.value += 1;
@@ -334,7 +371,7 @@ version(unittest) {
 
 	class DrawManager : ComponentManager!(DrawSystem, DrawComponent, 1) {
 
-		void update(int value){
+		void update(int value) {
 			foreach (ref comp; components) {
 				comp.value = value;
 			}
@@ -376,7 +413,7 @@ unittest {
 
 	mixin PreReq;
 	create_prerequisites(em, entity);
-	assert(em.get_component!SomeComponent(entity) != null);
+	assert(em.get_component!SomeComponent(entity) !is null);
 	em.get_component!SomeComponent(entity).value = 0;
 
 	{
