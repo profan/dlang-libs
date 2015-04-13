@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/profan/dlang-libs.svg?branch=master)](https://travis-ci.org/profan/dlang-libs)
+
 dlang-libs
 ===============
 Collection of personal modules for dlang separated out into a separate project because several projects depend on them.

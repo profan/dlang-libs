@@ -85,6 +85,5 @@ unittest {
 	//DHeap
 	auto heap = DHeap!(int)(32);
 	heap.insert(24);
-	writefln("heap[0]: %d", heap.deleteMin());
 
 }
